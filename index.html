@@ -2,24 +2,93 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Valentine Week Interactive - Canvas Drawings</title>
+    <title>Valentine Week Interactive - Romantic Edition</title>
+    <!-- Include dotLottie player module -->
+    <script
+      src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+      type="module"
+    ></script>
+    <!-- Google Fonts for various romantic styles -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Pacifico&family=Satisfy&family=Great+Vibes&family=Cookie&family=Handlee&family=Sacramento&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      body {
-        background-color: #ffe6e6;
-        font-family: Arial, sans-serif;
-        text-align: center;
+      /* Basic Reset */
+      * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        font-family: Arial, sans-serif;
+      }
+      /* Soft, pastel, romantic background */
+      body {
+        background: linear-gradient(135deg, #fceff9, #f8e7f5);
+        position: relative;
+        overflow-x: hidden;
+      }
+      /* Floating Hearts for a subtle romantic animation */
+      .floating-heart {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background-image: url("https://i.imgur.com/H9KL9z1.png");
+        background-size: cover;
+        opacity: 0.8;
+        animation: floatUp 6s linear infinite;
+        z-index: 0;
+      }
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) scale(1);
+          opacity: 0.8;
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-120vh) scale(0.8);
+          opacity: 0;
+        }
+      }
+      .floating-heart:nth-child(1) {
+        left: 10%;
+        animation-duration: 5s;
+      }
+      .floating-heart:nth-child(2) {
+        left: 30%;
+        animation-duration: 7s;
+        animation-delay: 1s;
+      }
+      .floating-heart:nth-child(3) {
+        left: 60%;
+        animation-duration: 6.5s;
+        animation-delay: 2s;
+      }
+      .floating-heart:nth-child(4) {
+        left: 80%;
+        animation-duration: 5.5s;
+        animation-delay: 1.5s;
       }
       header {
-        background-color: #ff4d4d;
+        background-color: #ff3366;
         padding: 20px;
         color: white;
         font-size: 2em;
+        text-align: center;
+        position: relative;
+        z-index: 2;
       }
+      /* Horizontal Navigation Layout Using Flex */
       nav {
-        background-color: #ff9999;
+        background-color: #ff99c9;
         padding: 10px;
+        position: relative;
+        z-index: 2;
       }
       nav ul {
         list-style: none;
@@ -35,30 +104,37 @@
         background-color: #ffcccc;
         border-radius: 5px;
         transition: background-color 0.3s;
+        font-size: 1.2em;
+        color: #ff3366;
       }
       nav ul li:hover {
         background-color: #ffb3b3;
       }
-      /* The animation container holds our canvas */
+      /* Animation Container now transparent (no white box or border) */
       #animationContainer {
         margin: 30px auto;
         width: 400px;
         height: 400px;
         position: relative;
-        border: 1px solid #ccc;
+        background: transparent;
+        z-index: 2;
       }
+      /* Message container – increased font size for easier reading */
       .message {
-        font-size: 1.5em;
-        color: #ff1a1a;
         margin-top: 20px;
+        font-size: 2.2em; /* increased text size */
         opacity: 0;
         transition: opacity 1s;
+        text-align: center;
+        position: relative;
+        z-index: 2;
       }
       .message.show {
         opacity: 1;
       }
       .not-allowed {
-        font-size: 1.5em;
+        font-family: "Dancing Script", cursive;
+        font-size: 2.2em; /* increased text size */
         color: #d63384;
         margin-top: 20px;
         animation: fadeIn 1s ease-in-out;
@@ -75,11 +151,25 @@
         }
       }
       canvas {
-        background-color: transparent;
+        background: transparent;
+      }
+      /* dotLottie player styling for Lottie animations */
+      dotlottie-player {
+        cursor: pointer;
+        transition: transform 0.5s ease;
+      }
+      dotlottie-player:hover {
+        transform: scale(1.05);
       }
     </style>
   </head>
   <body>
+    <!-- Floating hearts for the love-themed background -->
+    <div class="floating-heart"></div>
+    <div class="floating-heart"></div>
+    <div class="floating-heart"></div>
+    <div class="floating-heart"></div>
+
     <header>Valentine Week Interactive</header>
     <nav>
       <ul>
@@ -93,12 +183,12 @@
       </ul>
     </nav>
     <div id="animationContainer">
-      <!-- A canvas element will be created here for each day’s animation -->
+      <!-- An animation (canvas or Lottie) will be displayed here -->
     </div>
     <div id="messageContainer" class="message"></div>
 
     <script>
-      // Allowed dates and messages (date-check logic is still present but commented out in loadAnimation)
+      // Allowed dates and messages
       const allowedDates = {
         rose: { month: 2, day: 7 },
         propose: { month: 2, day: 8 },
@@ -130,6 +220,17 @@
           "My dearest, promises are whispered under starlit skies.\nReturn on {month} {day} when our vows will dance in the moonlight.",
         hug: "Darling, an embrace as warm as summer awaits us.\nMeet me on {month} {day} when warm hugs wrap our souls in love.",
         kiss: "Oh, sweet love, the moment of our perfect kiss is nearing.\nAwait {month} {day} when our lips meet in a tender symphony.",
+      };
+
+      // Unique text styles for each day
+      const dayTextStyles = {
+        rose: { color: "#d63384", fontFamily: "'Dancing Script', cursive" },
+        propose: { color: "#ff6b6b", fontFamily: "'Pacifico', cursive" },
+        chocolate: { color: "#6f4e37", fontFamily: "'Satisfy', cursive" },
+        teddy: { color: "#8d5524", fontFamily: "'Great Vibes', cursive" },
+        promise: { color: "#ff1493", fontFamily: "'Cookie', cursive" },
+        hug: { color: "#008080", fontFamily: "'Handlee', cursive" },
+        kiss: { color: "#ff3366", fontFamily: "'Sacramento', cursive" },
       };
 
       function capitalize(str) {
@@ -194,17 +295,56 @@
       }
       function showMessage(day) {
         const messageDiv = document.getElementById("messageContainer");
-        messageDiv.innerText = messages[day];
-        messageDiv.classList.remove("show");
-        void messageDiv.offsetWidth;
+        // Apply unique text style for this day.
+        if (dayTextStyles[day]) {
+          messageDiv.style.color = dayTextStyles[day].color;
+          messageDiv.style.fontFamily = dayTextStyles[day].fontFamily;
+        }
+        typeText(messageDiv, messages[day], 80);
         messageDiv.classList.add("show");
       }
 
       // ==============================
-      // Canvas Animation Functions
+      // Lottie Animation Functions for Rose and Propose
       // ==============================
+      // For Rose Day: Use the provided dotLottie content.
+      function displayRoseLottie(container) {
+        container.innerHTML = "";
+        const player = document.createElement("dotlottie-player");
+        player.setAttribute(
+          "src",
+          "https://lottie.host/d3c3c346-deb3-482a-88c4-58781803153c/CCXWt8ipi8.lottie"
+        );
+        player.setAttribute("background", "transparent");
+        player.setAttribute("speed", "1");
+        player.setAttribute("loop", "");
+        player.setAttribute("autoplay", "");
+        player.style.width = "300px";
+        player.style.height = "300px";
+        player.addEventListener("click", () => showMessage("rose"));
+        container.appendChild(player);
+      }
+      // For Propose Day: Use the provided dotLottie content.
+      function displayProposeLottie(container) {
+        container.innerHTML = "";
+        const player = document.createElement("dotlottie-player");
+        player.setAttribute(
+          "src",
+          "https://lottie.host/1b5c1e98-e372-49db-b4f4-6e1fabdf54b5/STMFrVlj1w.lottie"
+        );
+        player.setAttribute("background", "transparent");
+        player.setAttribute("speed", "1");
+        player.setAttribute("loop", "");
+        player.setAttribute("autoplay", "");
+        player.style.width = "300px";
+        player.style.height = "300px";
+        player.addEventListener("click", () => showMessage("propose"));
+        container.appendChild(player);
+      }
 
-      // Animate Rose: Draw a rose curve (using the polar rose equation) with a blooming effect.
+      // ==============================
+      // Canvas Animation Functions for Other Days
+      // ==============================
       function animateRose(canvas) {
         let ctx = canvas.getContext("2d");
         let startTime = null;
@@ -239,21 +379,6 @@
         }
         requestAnimationFrame(loop);
       }
-
-      // Utility function to draw a heart shape on a canvas context.
-      function drawHeart(ctx, x, y, size) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(-size, -size, -size * 1.5, size / 3, 0, size);
-        ctx.bezierCurveTo(size * 1.5, size / 3, size, -size, 0, 0);
-        ctx.fillStyle = "red";
-        ctx.fill();
-        ctx.restore();
-      }
-
-      // Animate Heart for Propose Day: A beating heart.
       function animateHeart(canvas) {
         let ctx = canvas.getContext("2d");
         let startTime = null;
@@ -271,8 +396,17 @@
         }
         requestAnimationFrame(loop);
       }
-
-      // Animate Chocolate: Draw falling “chocolates” as brown circles.
+      function drawHeart(ctx, x, y, size) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-size, -size, -size * 1.5, size / 3, 0, size);
+        ctx.bezierCurveTo(size * 1.5, size / 3, size, -size, 0, 0);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.restore();
+      }
       function animateChocolate(canvas) {
         let ctx = canvas.getContext("2d");
         let chocolates = [];
@@ -300,31 +434,25 @@
         }
         requestAnimationFrame(loop);
       }
-
-      // Animate Teddy: Draw a simple teddy bear face with a bouncing effect.
       function animateTeddy(canvas) {
         let ctx = canvas.getContext("2d");
         let startTime = null;
         function drawTeddy(offsetY) {
           ctx.save();
           ctx.translate(canvas.width / 2, canvas.height / 2 + offsetY);
-          // Head
           ctx.beginPath();
           ctx.arc(0, 0, 50, 0, 2 * Math.PI);
           ctx.fillStyle = "#996633";
           ctx.fill();
-          // Ears
           ctx.beginPath();
           ctx.arc(-40, -40, 20, 0, 2 * Math.PI);
           ctx.arc(40, -40, 20, 0, 2 * Math.PI);
           ctx.fill();
-          // Eyes
           ctx.fillStyle = "black";
           ctx.beginPath();
           ctx.arc(-20, -10, 5, 0, 2 * Math.PI);
           ctx.arc(20, -10, 5, 0, 2 * Math.PI);
           ctx.fill();
-          // Nose
           ctx.beginPath();
           ctx.arc(0, 10, 8, 0, 2 * Math.PI);
           ctx.fill();
@@ -340,8 +468,6 @@
         }
         requestAnimationFrame(loop);
       }
-
-      // Animate Promise: Floating hearts that rise from the bottom.
       function animatePromise(canvas) {
         let ctx = canvas.getContext("2d");
         let hearts = [];
@@ -365,8 +491,6 @@
         }
         requestAnimationFrame(loop);
       }
-
-      // Animate Hug: Draw two semi-circular “hands” that move toward each other.
       function animateHug(canvas) {
         let ctx = canvas.getContext("2d");
         let startTime = null;
@@ -377,12 +501,10 @@
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.save();
           ctx.translate(canvas.width / 2, canvas.height / 2);
-          // Left hand: semi-circle facing right
           ctx.beginPath();
           ctx.arc(-50 - offset, 0, 30, Math.PI * 0.5, Math.PI * 1.5);
           ctx.fillStyle = "#ffcc99";
           ctx.fill();
-          // Right hand: semi-circle facing left
           ctx.beginPath();
           ctx.arc(50 + offset, 0, 30, Math.PI * 1.5, Math.PI * 0.5, true);
           ctx.fill();
@@ -391,8 +513,6 @@
         }
         requestAnimationFrame(loop);
       }
-
-      // Animate Kiss: Draw a pair of “lips” that blink (change opacity).
       function animateKiss(canvas) {
         let ctx = canvas.getContext("2d");
         let startTime = null;
@@ -420,47 +540,50 @@
       }
 
       // ==============================
-      // Load Animation Based on Selected Day
-      // (Date-check logic is commented out for testing.)
+      // Load Animation Based on Selected Day (with Date-Check)
       // ==============================
       function loadAnimation(day) {
-        // Uncomment these lines to enable date restrictions:
-        // if (!isAllowed(day)) {
-        //   showNotAllowedMessage(day);
-        //   return;
-        // }
+        // Date-check logic is now active: only display content if today matches the allowed date.
+        if (!isAllowed(day)) {
+          showNotAllowedMessage(day);
+          return;
+        }
         const container = document.getElementById("animationContainer");
         container.innerHTML = "";
-        const canvas = document.createElement("canvas");
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        container.appendChild(canvas);
-        switch (day) {
-          case "rose":
-            animateRose(canvas);
-            break;
-          case "propose":
-            animateHeart(canvas);
-            break;
-          case "chocolate":
-            animateChocolate(canvas);
-            break;
-          case "teddy":
-            animateTeddy(canvas);
-            break;
-          case "promise":
-            animatePromise(canvas);
-            break;
-          case "hug":
-            animateHug(canvas);
-            break;
-          case "kiss":
-            animateKiss(canvas);
-            break;
-          default:
-            break;
+        if (day === "rose") {
+          // For Rose Day, display the dotLottie rose animation.
+          displayRoseLottie(container);
+          showMessage("rose");
+        } else if (day === "propose") {
+          // For Propose Day, display the dotLottie propose animation.
+          displayProposeLottie(container);
+          showMessage("propose");
+        } else {
+          const canvas = document.createElement("canvas");
+          canvas.width = container.clientWidth;
+          canvas.height = container.clientHeight;
+          container.appendChild(canvas);
+          switch (day) {
+            case "chocolate":
+              animateChocolate(canvas);
+              break;
+            case "teddy":
+              animateTeddy(canvas);
+              break;
+            case "promise":
+              animatePromise(canvas);
+              break;
+            case "hug":
+              animateHug(canvas);
+              break;
+            case "kiss":
+              animateKiss(canvas);
+              break;
+            default:
+              break;
+          }
+          document.getElementById("messageContainer").classList.remove("show");
         }
-        document.getElementById("messageContainer").classList.remove("show");
       }
 
       // Set up navigation click events.
